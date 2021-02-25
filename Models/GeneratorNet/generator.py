@@ -12,11 +12,11 @@ class Generator(tf.keras.Model):
         self.generatorBlocks = [
             GeneratorBlock(768, self.isTraining, 1),
             GeneratorBlock(768, self.isTraining, 1),
-            GeneratorBlock(768, self.isTraining, 2),
             GeneratorBlock(384, self.isTraining, 2),
             GeneratorBlock(384, self.isTraining, 2),
-            GeneratorBlock(384, self.isTraining, 3),
-            GeneratorBlock(192, self.isTraining, 5)]
+            GeneratorBlock(384, self.isTraining, 2),
+            GeneratorBlock(192, self.isTraining, 3),
+            GeneratorBlock(96, self.isTraining, 5)]
         self.postProcess = SpectralConv1D(filters=1, kernelSize=3, activation='tanh')
 
     def call(self, inputs, noise):
