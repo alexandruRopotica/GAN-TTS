@@ -1,6 +1,6 @@
 import tensorflow as tf
-from unconditionalDisc import UnconditionalDiscriminator
-from conditionalDisc import ConditionalDiscriminator
+from DiscriminatorNet.unconditionalDisc import UnconditionalDiscriminator
+from DiscriminatorNet.conditionalDisc import ConditionalDiscriminator
 
 
 class Discriminator(tf.keras.Model):
@@ -22,6 +22,7 @@ class Discriminator(tf.keras.Model):
         self.flatten = tf.keras.layers.Flatten()
         self.denseStack = ([tf.keras.layers.Dense(1) for i in range(5)])
         self.dense = tf.keras.layers.Dense(1)
+    
         
     def call(self, w1Inputs, w2Inputs, w3Inputs, w4Inputs, w5Inputs, condition):
         outputs = 0

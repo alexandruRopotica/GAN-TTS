@@ -1,4 +1,6 @@
 import tensorflow as tf
+import tensorflow_addons as tfa
+import numpy as np
 
 
 class ConditionalBatchNorm(tf.keras.Model):

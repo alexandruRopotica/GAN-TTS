@@ -1,5 +1,5 @@
 import tensorflow as tf
-from convBank import Conv1DBank
+from FeatureNet.convBank import Conv1DBank
 
 
 class CBHG(tf.keras.Model):
@@ -42,4 +42,4 @@ class CBHG(tf.keras.Model):
         discOutputs = outputs
         outputs = self.upsample(outputs)
         genOutputs = self.conv(outputs)
-        return discOutputs, genOutputs
+        return genOutputs, discOutputs

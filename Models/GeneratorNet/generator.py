@@ -1,5 +1,5 @@
 import tensorflow as tf
-from generatorBlock import GeneratorBlock
+from GeneratorNet.generatorBlock import GeneratorBlock
 from utils import SpectralConv1D
 
 

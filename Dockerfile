@@ -9,5 +9,6 @@ WORKDIR /GANTTS
 COPY ./Models .
 COPY ./Tests .
 COPY ./Utils .
+COPY ./Training .
 
 CMD [ "python", "./testNet.py"] 
