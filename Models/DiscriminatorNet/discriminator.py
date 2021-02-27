@@ -21,7 +21,6 @@ class Discriminator(tf.keras.Model):
         ]
         self.flatten = tf.keras.layers.Flatten()
         self.denseStack = ([tf.keras.layers.Dense(1) for i in range(5)])
-        self.dense = tf.keras.layers.Dense(1)
     
         
     def call(self, w1Inputs, w2Inputs, w3Inputs, w4Inputs, w5Inputs, condition):
@@ -29,5 +28,4 @@ class Discriminator(tf.keras.Model):
         windows = [w1Inputs, w2Inputs, w3Inputs, w4Inputs, w5Inputs]
         for uDisc, cDisc, window, dense in zip(self.uDscriminatorStack, self.cDiscriminatorStack, windows, self.denseStack):
             outputs += dense(self.flatten(uDisc(window)) + self.flatten(cDisc(window, condition)))
-        outputs = self.dense(outputs)
         return outputs

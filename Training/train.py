@@ -16,12 +16,20 @@ BATCH_SIZE = 1
 EPOCHS = 1
 
 
-def getSamples(audioArray, windows):
-    totalSamples = len(audioArray[0])
+def muLaw(audio, mu=256):
+    sgn = np.sign(audio)
+    numerator = np.log(1 + mu * tf.abs(audio))
+    denominator = np.log(1 + mu)
+    f = sgn * (numerator / denominator)
+    return f
+
+
+def getSamples(audio, windows):
+    totalSamples = len(audio[0])
     subSamples = []
     for window in windows:
         idx = np.random.randint(0, totalSamples - window)
-        subSamples.append(audioArray[:, idx:idx+window, :])
+        subSamples.append(audio[:, idx:idx+window, :])
     return subSamples
 
 

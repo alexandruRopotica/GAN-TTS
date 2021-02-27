@@ -7,11 +7,11 @@ class OrthogonalRegularizer(tf.keras.regularizers.Regularizer):
         super(OrthogonalRegularizer, self).__init__(**kwargs)
         self.beta = beta
 
-    def call(self, input_tensor):
-        c = input_tensor.shape[-1]
-        x = tf.reshape(input_tensor, (-1, c))
-        ortho_loss = tf.matmul(x, x, transpose_a=True) * (1 - tf.eye(c))
-        outputs = self.beta * tf.norm(ortho_loss)
+    def call(self, inputTensor):
+        c = inputTensor.shape[-1]
+        x = tf.reshape(inputTensor, (-1, c))
+        orthoLoss = tf.matmul(x, x, transpose_a=True) * (1 - tf.eye(c))
+        outputs = self.beta * tf.norm(orthoLoss)
         return outputs
 
 
