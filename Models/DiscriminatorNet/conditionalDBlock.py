@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils import SpectralConv1D
+from Utils.utils import SpectralConv1D
 
 
 class ConditionalDBlock(tf.keras.Model):

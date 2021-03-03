@@ -1,7 +1,7 @@
 import tensorflow as tf
-from utils import SpectralConv1D
-from DiscriminatorNet.conditionalDBlock import ConditionalDBlock
-from DiscriminatorNet.discriminatorBlock import DiscriminatorBlock
+from Utils.utils import SpectralConv1D
+from Model.DiscriminatorNet.conditionalDBlock import ConditionalDBlock
+from Model.DiscriminatorNet.discriminatorBlock import DiscriminatorBlock
 
 
 class ConditionalDiscriminator(tf.keras.Model):

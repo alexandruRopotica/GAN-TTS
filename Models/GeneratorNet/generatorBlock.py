@@ -1,6 +1,6 @@
 import tensorflow as tf
-from GeneratorNet.condBatchNorm import ConditionalBatchNorm
-from utils import SpectralConv1D, SpectralConv1DTranspose
+from Model.GeneratorNet.condBatchNorm import ConditionalBatchNorm
+from Utils.utils import SpectralConv1D, SpectralConv1DTranspose
 
 
 class GeneratorBlock(tf.keras.Model):

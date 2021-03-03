@@ -1,5 +1,5 @@
 import tensorflow as tf
-from FeatureNet.convBank import Conv1DBank
+from Model.FeatureNet.convBank import Conv1DBank
 
 
 class CBHG(tf.keras.Model):

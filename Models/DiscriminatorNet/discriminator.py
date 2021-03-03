@@ -1,6 +1,6 @@
 import tensorflow as tf
-from DiscriminatorNet.unconditionalDisc import UnconditionalDiscriminator
-from DiscriminatorNet.conditionalDisc import ConditionalDiscriminator
+from Model.DiscriminatorNet.unconditionalDisc import UnconditionalDiscriminator
+from Model.DiscriminatorNet.conditionalDisc import ConditionalDiscriminator
 
 
 class Discriminator(tf.keras.Model):

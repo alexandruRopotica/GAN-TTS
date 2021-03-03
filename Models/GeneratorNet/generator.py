@@ -1,6 +1,6 @@
 import tensorflow as tf
-from GeneratorNet.generatorBlock import GeneratorBlock
-from utils import SpectralConv1D
+from Model.GeneratorNet.generatorBlock import GeneratorBlock
+from Utils.utils import SpectralConv1D
 
 
 class Generator(tf.keras.Model):
