@@ -1,6 +1,6 @@
 import tensorflow as tf
 from Utils.utils import SpectralConv1D
-from Model.DiscriminatorNet.discriminatorBlock import DiscriminatorBlock
+from Models.DiscriminatorNet.discriminatorBlock import DiscriminatorBlock
 
 
 class UnconditionalDiscriminator(tf.keras.Model):

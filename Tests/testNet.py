@@ -3,11 +3,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import tensorflow_text as text
-from bert import BERT
-from FeatureNet.cbhg import CBHG
-from GeneratorNet.generator import Generator
-from DiscriminatorNet.discriminator import Discriminator
-from train import getSamples
+from Models.bert import BERT
+from Models.FeatureNet.cbhg import CBHG
+from Models.GeneratorNet.generator import Generator
+from Models.DiscriminatorNet.discriminator import Discriminator
+from Training.train import getSamples
 
 
 PREPROCESSOR = "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3"

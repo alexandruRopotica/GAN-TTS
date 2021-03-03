@@ -1,5 +1,5 @@
 import tensorflow as tf
-from Model.GeneratorNet.condBatchNorm import ConditionalBatchNorm
+from Models.GeneratorNet.condBatchNorm import ConditionalBatchNorm
 from Utils.utils import SpectralConv1D, SpectralConv1DTranspose
 
 
