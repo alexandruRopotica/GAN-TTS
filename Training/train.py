@@ -35,7 +35,7 @@ def getSamples(audio, windows):
     return subSamples
 
 
-def getDatasets(wavsDir, textDir):
+def getDataset(wavsDir, textDir):
     audioList, textList = [], []
     for wav in os.listdir(wavsDir):
         audio, _ = librosa.load(wavsDir + '/' + wav, sr=24000)
@@ -66,11 +66,11 @@ def initializeModels():
     return featureNet, generator, discriminator, genOptimizer, discOptimizer
 
 
-def trainStep(audioBatch, text, featureNet, generator, discriminator, genOptimizer, discOptimizer):
+def trainStep(audioBatch, textBatch, featureNet, generator, discriminator, genOptimizer, discOptimizer):
     with tf.device('/device:GPU:0'):
         noise = tf.random.normal((BATCH_SIZE, 128, 1))
         with tf.GradientTape() as genTape, tf.GradientTape() as discTape, tf.GradientTape() as featureTape:
-            genFeatures, discFeatures = featureNet(text)
+            genFeatures, discFeatures = featureNet(textBatch)
             generatedAudio = generator(genFeatures, noise)
             w1, w2, w3, w4, w5 = getSamples(generatedAudio, WINDOWS)
             fakeAudio = discriminator(w1, w2, w3, w4, w5, discFeatures)
@@ -89,17 +89,16 @@ def trainStep(audioBatch, text, featureNet, generator, discriminator, genOptimiz
         print("Generator loss:", genLoss.numpy(),"| Discriminator loss:", discLoss.numpy())
 
 
-def train(audioDataset, textDataset, epochs):
+def train(dataset, epochs):
     featureNet, generator, discriminator, genOptimizer, discOptimizer = initializeModels()
     for epoch in range(epochs):
         print("Epoch", epoch+1)
-        for audio, text in zip(audioDataset, textDataset):
-            audio = tf.expand_dims(audio, axis=0)
-            text = tf.expand_dims(text, axis=0)
-            trainStep(audio, text, featureNet, generator, discriminator, genOptimizer, discOptimizer)
+        for batch in dataset:
+            trainStep(batch[0], batch[1], featureNet, generator, discriminator, genOptimizer, discOptimizer, featureOptimizer)
 
 
 if __name__ == '__main__':
     audioDataset, textDataset = getDatasets(WAVS_DIR, TEXT_DIR)
     print("Processed audio and texts")
-    train(audioDataset, textDataset, EPOCHS)
+    dataset = tf.data.Dataset.from_tensor_slices((audioDataset, textDataset)).batch(BATCH_SIZE)
+    train(dataset, EPOCHS)
