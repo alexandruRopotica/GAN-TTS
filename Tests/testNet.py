@@ -14,32 +14,30 @@ PREPROCESSOR = "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3"
 ENCODER = "https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-12_H-256_A-4/1"
 TEXT_INPUT = ['This is such an amazing movie!']
 BATCH_SIZE = 1
-NOISE = tf.random.normal((1, 128, 1))
+NOISE = tf.random.normal((BATCH_SIZE, 128, 1))
 WINDOWS = [240, 480, 960, 1920, 3600]
+BERT_MODEL = BERT(PREPROCESSOR, ENCODER)
 
 
 def testBERT():
-    bert = BERT(PREPROCESSOR, ENCODER)
-    output = bert(TEXT_INPUT)
+    output = BERT_MODEL(TEXT_INPUT)
     assert output.shape == (1,256,1)
     print("BERT test completed.")
 
 
 def testFeatureNet():
-    bert = BERT(PREPROCESSOR, ENCODER)
-    embedding = bert(TEXT_INPUT)
+    embeddings = BERT_MODEL(TEXT_INPUT)
     featureNet = CBHG(BATCH_SIZE, 16, True)
-    genFeatures, discFeatures = featureNet(embedding)
+    genFeatures, discFeatures = featureNet(embeddings)
     assert genFeatures.shape == (1, 400, 256)
     assert discFeatures.shape == (1, 1, 256)
     print("FeatureNet test completed.")
 
 
 def testGeneratorNet():
-    bert = BERT(PREPROCESSOR, ENCODER)
-    embedding = bert(TEXT_INPUT)
+    embeddings = BERT_MODEL(TEXT_INPUT)
     featureNet = CBHG(BATCH_SIZE, 16, True)
-    genFeatures, _ = featureNet(embedding)
+    genFeatures, _ = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
     generatedAudio = generator(genFeatures, NOISE)
     assert generatedAudio.shape == (1, 48000, 1)
@@ -47,10 +45,9 @@ def testGeneratorNet():
 
 
 def testDiscriminatorNet():
-    bert = BERT(PREPROCESSOR, ENCODER)
-    embedding = bert(TEXT_INPUT)
+    embeddings = BERT_MODEL(TEXT_INPUT)
     featureNet = CBHG(BATCH_SIZE, 16, True)
-    genFeatures, discFeatures = featureNet(embedding)
+    genFeatures, discFeatures = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
     discriminator = Discriminator()
     generatedAudio = generator(genFeatures, NOISE)
