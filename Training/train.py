@@ -1,25 +1,25 @@
 import numpy as np
 import tensorflow_addons as tfa
-import tensorflow_hub as hub
-import tensorflow_text as text
 import tensorflow as tf
 import librosa
 import os
 
+from transformers import logging
+logging.set_verbosity_error()
 from Models.FeatureNet.cbhg import CBHG
 from Models.GeneratorNet.generator import Generator
 from Models.DiscriminatorNet.discriminator import Discriminator
 from Models.bert import BERT
 
-PREPROCESSOR = "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3"
-ENCODER = "https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-12_H-256_A-4/1"
-BERT_MODEL = BERT(PREPROCESSOR, ENCODER)
+
 DISC_LEARNING_RATE = 1e-4
 GEN_LEARNING_RATE = 5e-5
 BETA_1 = 0
 BETA_2 = 0.999
 DECAY_RATE = 0.9999
 WINDOWS = [240, 480, 960, 1920, 3600]
+BERT_TYPE = 'bert-base-cased'
+BERT_MODEL = BERT(BERT_TYPE)
 BATCH_SIZE = 1
 EPOCHS = 1
 TEXT_DIR = '/GANTTS/E2E-GANTTS/LJSpeech/texts'

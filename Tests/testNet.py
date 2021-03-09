@@ -2,7 +2,8 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-import tensorflow_text as text
+from transformers import logging
+logging.set_verbosity_error()
 from Models.bert import BERT
 from Models.FeatureNet.cbhg import CBHG
 from Models.GeneratorNet.generator import Generator
@@ -10,18 +11,17 @@ from Models.DiscriminatorNet.discriminator import Discriminator
 from Training.train import getSamples
 
 
-PREPROCESSOR = "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3"
-ENCODER = "https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-12_H-256_A-4/1"
 TEXT_INPUT = ['This is such an amazing movie!']
 BATCH_SIZE = 1
 NOISE = tf.random.normal((BATCH_SIZE, 128, 1))
 WINDOWS = [240, 480, 960, 1920, 3600]
-BERT_MODEL = BERT(PREPROCESSOR, ENCODER)
+BERT_TYPE = 'bert-base-cased'
+BERT_MODEL = BERT(BERT_TYPE)
 
 
 def testBERT():
     output = BERT_MODEL(TEXT_INPUT)
-    assert output.shape == (1,256,1)
+    assert output.shape == (1,768,1)
     print("BERT test completed.")
 
 
@@ -29,8 +29,8 @@ def testFeatureNet():
     embeddings = BERT_MODEL(TEXT_INPUT)
     featureNet = CBHG(BATCH_SIZE, 16, True)
     genFeatures, discFeatures = featureNet(embeddings)
-    assert genFeatures.shape == (1, 400, 256)
-    assert discFeatures.shape == (1, 1, 256)
+    assert genFeatures.shape == (1, 400, 768)
+    assert discFeatures.shape == (1, 1, 768)
     print("FeatureNet test completed.")
 
 

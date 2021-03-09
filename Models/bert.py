@@ -1,17 +1,15 @@
 import tensorflow as tf
-import tensorflow_hub as hub
+from transformers import BertTokenizer, TFBertModel
 
 
 class BERT(tf.keras.Model):
-    def __init__(self, preprocessor, encoder, **kwargs):
+    def __init__(self, bertType, **kwargs):
         super(BERT, self).__init__(**kwargs)
-        self.preprocessor = preprocessor
-        self.encoder = encoder
-        self.preprocess = hub.KerasLayer(preprocessor)
-        self.encode = hub.KerasLayer(encoder)
+        self.tokenizer = BertTokenizer.from_pretrained(bertType)
+        self.bert = TFBertModel.from_pretrained(bertType)
 
     def call(self, inputs):
-        outputs = self.preprocess(inputs)
-        outputs = self.encode(outputs)
-        outputs = tf.expand_dims(outputs["pooled_output"], axis=-1)
+        outputs = self.tokenizer(inputs, return_tensors='tf', padding='max_length')
+        outputs = self.bert(outputs)
+        outputs = tf.expand_dims(outputs["pooler_output"], axis=-1)
         return outputs

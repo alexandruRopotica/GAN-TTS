@@ -23,7 +23,7 @@ class CBHG(tf.keras.Model):
             tf.keras.layers.Dropout(0.5)])
         self.lastProjectionConv = Conv1DBank(1, 3, None, self.isTraining)
         self.upsample = tf.keras.layers.UpSampling1D(size=400)
-        self.conv = tf.keras.layers.Conv1D(256, 3, padding='same')
+        self.conv = tf.keras.layers.Conv1D(768, 3, padding='same')
     
     def call(self, inputs):
         outputList = []
@@ -38,7 +38,7 @@ class CBHG(tf.keras.Model):
         outputs = self.bidirectionalGRU(outputs)
         outputs = self.encoderPreNet(outputs)
         outputs = self.lastProjectionConv(outputs)
-        outputs = tf.reshape(outputs, (self.batchSize, 1, 256))
+        outputs = tf.reshape(outputs, (self.batchSize, 1, 768))
         discOutputs = outputs
         outputs = self.upsample(outputs)
         genOutputs = self.conv(outputs)
