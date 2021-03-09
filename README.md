@@ -10,3 +10,6 @@ A tensorflow implementation of GAN-TTS paper.
 ### Papers
 - [GAN-TTS](https://arxiv.org/abs/1909.11646) - Used to implement generator and discriminator
 - [Tacotron](https://arxiv.org/abs/1703.10135) - Used to implement CBHG module
+### External code
+- [Spectral normalization](https://github.com/thisisiron/spectral_normalization-tf2)
+- [Pre-trained BERT](https://huggingface.co/)
