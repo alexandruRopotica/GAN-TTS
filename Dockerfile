@@ -2,7 +2,7 @@ FROM tensorflow/tensorflow:latest-gpu
 
 RUN mkdir /GANTTS
 
-RUN pip install tensorflow_addons>=0.12.0
+RUN pip install tensorflow_addons>=0.11.0
 RUN pip install transformers
 RUN pip install pandas
 RUN apt-get install -y libsndfile1
