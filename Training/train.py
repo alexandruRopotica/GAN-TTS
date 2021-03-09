@@ -4,12 +4,13 @@ import tensorflow as tf
 import librosa
 import os
 
-from transformers import logging
-logging.set_verbosity_error()
+# from transformers import logging
+# logging.set_verbosity_error()
 from Models.FeatureNet.cbhg import CBHG
 from Models.GeneratorNet.generator import Generator
 from Models.DiscriminatorNet.discriminator import Discriminator
-from Models.bert import BERT
+# from Models.bert import BERT
+from Model.embeddingNet import EmbeddingNet
 
 
 DISC_LEARNING_RATE = 1e-4
@@ -18,8 +19,8 @@ BETA_1 = 0
 BETA_2 = 0.999
 DECAY_RATE = 0.9999
 WINDOWS = [240, 480, 960, 1920, 3600]
-BERT_TYPE = 'bert-base-cased'
-BERT_MODEL = BERT(BERT_TYPE)
+# BERT_TYPE = 'bert-base-cased'
+# BERT_MODEL = BERT(BERT_TYPE)
 BATCH_SIZE = 1
 EPOCHS = 1
 TEXT_DIR = '/GANTTS/E2E-GANTTS/LJSpeech/texts'
@@ -51,13 +52,14 @@ def getDataset(wavsDir, textDir):
             content = f.read()
         textList.append(content)
     audioDataset = tf.concat(audioList, axis=0)
-    textDataset = BERT_MODEL(textList)
+    embeddingNet = embeddingNet(textList)
+    textDataset = embeddingNet(textList)
     return audioDataset, textDataset
     
 
 
 def initializeModels():
-    featureNet = CBHG(BATCH_SIZE, 16, True)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
     generator = Generator(BATCH_SIZE, True)
     discriminator = Discriminator()
     genOptimizer = tfa.optimizers.MovingAverage(decay=DECAY_RATE,

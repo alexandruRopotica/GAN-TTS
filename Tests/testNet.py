@@ -2,9 +2,10 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-from transformers import logging
-logging.set_verbosity_error()
-from Models.bert import BERT
+# from transformers import logging
+# logging.set_verbosity_error()
+#from Models.bert import BERT
+from Models.embeddingNet import EmbeddingNet
 from Models.FeatureNet.cbhg import CBHG
 from Models.GeneratorNet.generator import Generator
 from Models.DiscriminatorNet.discriminator import Discriminator
@@ -15,28 +16,36 @@ TEXT_INPUT = ['This is such an amazing movie!']
 BATCH_SIZE = 1
 NOISE = tf.random.normal((BATCH_SIZE, 128, 1))
 WINDOWS = [240, 480, 960, 1920, 3600]
-BERT_TYPE = 'bert-base-cased'
-BERT_MODEL = BERT(BERT_TYPE)
+#BERT_TYPE = 'bert-base-cased'
+#BERT_MODEL = BERT(BERT_TYPE)
 
 
-def testBERT():
-    output = BERT_MODEL(TEXT_INPUT)
-    assert output.shape == (1,768,1)
-    print("BERT test completed.")
+# def testBERT():
+#     output = BERT_MODEL(TEXT_INPUT)
+#     assert output.shape == (1,768,1)
+#     print("BERT test completed.")
+
+def testEmbeddingNet():
+    embeddingNet = EmbeddingNet(TEXT_INPUT)
+    output = embeddingNet(TEXT_INPUT)
+    assert output.shape == (1,256,1)
+    print("EmbeddingNet test completed.")
 
 
 def testFeatureNet():
-    embeddings = BERT_MODEL(TEXT_INPUT)
-    featureNet = CBHG(BATCH_SIZE, 16, True)
+    embeddingNet = EmbeddingNet(TEXT_INPUT)
+    embeddings = embeddingNet(TEXT_INPUT)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
     genFeatures, discFeatures = featureNet(embeddings)
-    assert genFeatures.shape == (1, 400, 768)
-    assert discFeatures.shape == (1, 1, 768)
+    assert genFeatures.shape == (1, 400, 256)
+    assert discFeatures.shape == (1, 1, 256)
     print("FeatureNet test completed.")
 
 
 def testGeneratorNet():
-    embeddings = BERT_MODEL(TEXT_INPUT)
-    featureNet = CBHG(BATCH_SIZE, 16, True)
+    embeddingNet = EmbeddingNet(TEXT_INPUT)
+    embeddings = embeddingNet(TEXT_INPUT)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
     genFeatures, _ = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
     generatedAudio = generator(genFeatures, NOISE)
@@ -45,8 +54,9 @@ def testGeneratorNet():
 
 
 def testDiscriminatorNet():
-    embeddings = BERT_MODEL(TEXT_INPUT)
-    featureNet = CBHG(BATCH_SIZE, 16, True)
+    embeddingNet = EmbeddingNet(TEXT_INPUT)
+    embeddings = embeddingNet(TEXT_INPUT)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
     genFeatures, discFeatures = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
     discriminator = Discriminator()
@@ -59,7 +69,8 @@ def testDiscriminatorNet():
 
 if __name__ == '__main__':
     with tf.device('device:GPU:0'):
-        testBERT()
+        testEmbeddingNet()
+        #testBERT()
         testFeatureNet()
         testGeneratorNet()
         testDiscriminatorNet()

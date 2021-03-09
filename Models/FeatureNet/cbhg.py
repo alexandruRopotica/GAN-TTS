@@ -3,11 +3,12 @@ from Models.FeatureNet.convBank import Conv1DBank
 
 
 class CBHG(tf.keras.Model):
-    def __init__(self, batchSize, K, isTraining, **kwargs):
+    def __init__(self, batchSize, K, isTraining, featureNum, **kwargs):
         super(CBHG, self).__init__(**kwargs)
         self.batchSize = batchSize
         self.K = K
         self.isTraining = isTraining
+        self.featureNum = featureNum
         self.ConvBanks = [Conv1DBank(128, i, tf.nn.relu, self.isTraining) for i in range(1, self.K + 1)]
         self.maxPooling = tf.keras.layers.MaxPool1D(pool_size=2, strides=1, padding='same')
         self.firstProjectionConv = Conv1DBank(128, 3, tf.nn.relu, self.isTraining)
@@ -23,7 +24,7 @@ class CBHG(tf.keras.Model):
             tf.keras.layers.Dropout(0.5)])
         self.lastProjectionConv = Conv1DBank(1, 3, None, self.isTraining)
         self.upsample = tf.keras.layers.UpSampling1D(size=400)
-        self.conv = tf.keras.layers.Conv1D(768, 3, padding='same')
+        self.conv = tf.keras.layers.Conv1D(self.featureNum, 3, padding='same')
     
     def call(self, inputs):
         outputList = []
@@ -38,7 +39,7 @@ class CBHG(tf.keras.Model):
         outputs = self.bidirectionalGRU(outputs)
         outputs = self.encoderPreNet(outputs)
         outputs = self.lastProjectionConv(outputs)
-        outputs = tf.reshape(outputs, (self.batchSize, 1, 768))
+        outputs = tf.reshape(outputs, (self.batchSize, 1, self.featureNum))
         discOutputs = outputs
         outputs = self.upsample(outputs)
         genOutputs = self.conv(outputs)
