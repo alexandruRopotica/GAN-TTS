@@ -10,7 +10,7 @@ from Models.FeatureNet.cbhg import CBHG
 from Models.GeneratorNet.generator import Generator
 from Models.DiscriminatorNet.discriminator import Discriminator
 # from Models.bert import BERT
-from Model.embeddingNet import EmbeddingNet
+from Models.embeddingNet import EmbeddingNet
 
 
 DISC_LEARNING_RATE = 1e-4
