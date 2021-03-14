@@ -3,14 +3,14 @@ import tensorflow_addons as tfa
 import tensorflow as tf
 import librosa
 import os
-
-# from transformers import logging
-# logging.set_verbosity_error()
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+from transformers import logging
+logging.set_verbosity_error()
 from Models.FeatureNet.cbhg import CBHG
 from Models.GeneratorNet.generator import Generator
 from Models.DiscriminatorNet.discriminator import Discriminator
-# from Models.bert import BERT
-from Models.embeddingNet import EmbeddingNet
+from Models.bert import BERT
 
 
 DISC_LEARNING_RATE = 1e-4
@@ -19,12 +19,13 @@ BETA_1 = 0
 BETA_2 = 0.999
 DECAY_RATE = 0.9999
 WINDOWS = [240, 480, 960, 1920, 3600]
-# BERT_TYPE = 'bert-base-cased'
-# BERT_MODEL = BERT(BERT_TYPE)
-BATCH_SIZE = 1
-EPOCHS = 1
+BERT_TYPE = 'bert-base-cased'
+BERT_MODEL = BERT(BERT_TYPE)
+BATCH_SIZE = 17
+EPOCHS = 20
 TEXT_DIR = '/GANTTS/E2E-GANTTS/LJSpeech/texts'
 WAVS_DIR = '/GANTTS/E2E-GANTTS/LJSpeech/wavs'
+CKPT_DIR = '/GANTTS/E2E-GANTTS/Checkpoints'
 
 
 def getSamples(audio, windows):
@@ -97,6 +98,13 @@ def train(dataset, epochs):
         print("Epoch", epoch+1)
         for batch in dataset:
             trainStep(batch[0], batch[1], featureNet, generator, discriminator, genOptimizer, discOptimizer, featureOptimizer)
+            checkpointPath = os.path.join(CKPT_DIR, "ckpt"+epoch)
+            checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
+                                 discriminator_optimizer=discriminator_optimizer,
+                                 generator=generator,
+                                 discriminator=discriminator)
+            checkpoint.save(file_prefix = checkpointPath)
+
 
 
 if __name__ == '__main__':
