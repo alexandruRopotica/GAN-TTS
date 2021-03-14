@@ -23,9 +23,9 @@ BERT_TYPE = 'bert-base-cased'
 BERT_MODEL = BERT(BERT_TYPE)
 BATCH_SIZE = 17
 EPOCHS = 20
-TEXT_DIR = '/GANTTS/E2E-GANTTS/LJSpeech/texts'
-WAVS_DIR = '/GANTTS/E2E-GANTTS/LJSpeech/wavs'
-CKPT_DIR = '/GANTTS/E2E-GANTTS/Checkpoints'
+TEXT_DIR = './LJSpeech/texts'
+WAVS_DIR = './LJSpeech/wavs'
+CKPT_DIR = './Checkpoints'
 
 
 def getSamples(audio, windows):
@@ -59,7 +59,7 @@ def getDataset(wavsDir, textDir):
 
 
 def initializeModels():
-    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 768)
     generator = Generator(BATCH_SIZE, True)
     discriminator = Discriminator()
     genOptimizer = tfa.optimizers.MovingAverage(decay=DECAY_RATE,
@@ -69,26 +69,25 @@ def initializeModels():
 
 
 def trainStep(audioBatch, textBatch, featureNet, generator, discriminator, genOptimizer, discOptimizer):
-    with tf.device('/device:GPU:0'):
-        noise = tf.random.normal((BATCH_SIZE, 128, 1))
-        with tf.GradientTape() as genTape, tf.GradientTape() as discTape, tf.GradientTape() as featureTape:
-            genFeatures, discFeatures = featureNet(textBatch)
-            generatedAudio = generator(genFeatures, noise)
-            w1, w2, w3, w4, w5 = getSamples(generatedAudio, WINDOWS)
-            fakeAudio = discriminator(w1, w2, w3, w4, w5, discFeatures)
-            w1, w2, w3, w4, w5 = getSamples(audioBatch, WINDOWS)
-            realAudio = discriminator(w1, w2, w3, w4, w5, discFeatures)
-            discFakeLoss = tf.losses.hinge(tf.zeros_like(fakeAudio), fakeAudio)
-            discRealLoss = tf.losses.hinge(tf.ones_like(realAudio), realAudio)
-            discLoss = discFakeLoss + discRealLoss
-            genLoss = tf.losses.hinge(tf.ones_like(fakeAudio), fakeAudio)
-        discGradients = discTape.gradient(discLoss, discriminator.trainable_variables)
-        discOptimizer.apply_gradients(zip(discGradients, discriminator.trainable_variables))
-        genGradients = genTape.gradient(genLoss, generator.trainable_variables)
-        genOptimizer.apply_gradients(zip(genGradients, generator.trainable_variables))
-        featureGradients = featureTape.gradient(discLoss, featureNet.trainable_variables)
-        discOptimizer.apply_gradients(zip(featureGradients, featureNet.trainable_variables))
-        print("Generator loss:", genLoss.numpy(),"| Discriminator loss:", discLoss.numpy())
+    noise = tf.random.normal((BATCH_SIZE, 128, 1))
+    with tf.GradientTape() as genTape, tf.GradientTape() as discTape, tf.GradientTape() as featureTape:
+        genFeatures, discFeatures = featureNet(textBatch)
+        generatedAudio = generator(genFeatures, noise)
+        w1, w2, w3, w4, w5 = getSamples(generatedAudio, WINDOWS)
+        fakeAudio = discriminator(w1, w2, w3, w4, w5, discFeatures)
+        w1, w2, w3, w4, w5 = getSamples(audioBatch, WINDOWS)
+        realAudio = discriminator(w1, w2, w3, w4, w5, discFeatures)
+        discFakeLoss = tf.losses.hinge(tf.zeros_like(fakeAudio), fakeAudio)
+        discRealLoss = tf.losses.hinge(tf.ones_like(realAudio), realAudio)
+        discLoss = discFakeLoss + discRealLoss
+        genLoss = tf.losses.hinge(tf.ones_like(fakeAudio), fakeAudio)
+    discGradients = discTape.gradient(discLoss, discriminator.trainable_variables)
+    discOptimizer.apply_gradients(zip(discGradients, discriminator.trainable_variables))
+    genGradients = genTape.gradient(genLoss, generator.trainable_variables)
+    genOptimizer.apply_gradients(zip(genGradients, generator.trainable_variables))
+    featureGradients = featureTape.gradient(discLoss, featureNet.trainable_variables)
+    discOptimizer.apply_gradients(zip(featureGradients, featureNet.trainable_variables))
+    #print("Generator loss:", genLoss.numpy(),"| Discriminator loss:", discLoss.numpy())
 
 
 def train(dataset, epochs):
@@ -96,10 +95,11 @@ def train(dataset, epochs):
     for epoch in range(epochs):
         print("Epoch", epoch+1)
         for batch in dataset:
-            trainStep(batch[0], batch[1], featureNet, generator, discriminator, genOptimizer, discOptimizer, featureOptimizer)
-            checkpointPath = os.path.join(CKPT_DIR, "ckpt"+epoch)
-            checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
-                                 discriminator_optimizer=discriminator_optimizer,
+            trainStep(batch[0], batch[1], featureNet, generator, discriminator, genOptimizer, discOptimizer)
+            checkpointPath = os.path.join(CKPT_DIR, "ckpt")
+            checkpoint = tf.train.Checkpoint(generator_optimizer=genOptimizer,
+                                 discriminator_optimizer=discOptimizer,
+                                 feature_net=featureNet,
                                  generator=generator,
                                  discriminator=discriminator)
             checkpoint.save(file_prefix = checkpointPath)
@@ -107,7 +107,7 @@ def train(dataset, epochs):
 
 
 if __name__ == '__main__':
-    audioDataset, textDataset = getDatasets(WAVS_DIR, TEXT_DIR)
+    audioDataset, textDataset = getDataset(WAVS_DIR, TEXT_DIR)
     print("Processed audio and texts")
     dataset = tf.data.Dataset.from_tensor_slices((audioDataset, textDataset)).batch(BATCH_SIZE)
     train(dataset, EPOCHS)
