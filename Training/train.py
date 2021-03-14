@@ -53,8 +53,7 @@ def getDataset(wavsDir, textDir):
             content = f.read()
         textList.append(content)
     audioDataset = tf.concat(audioList, axis=0)
-    embeddingNet = embeddingNet(textList)
-    textDataset = embeddingNet(textList)
+    textDataset = BERT_MODEL(textList)
     return audioDataset, textDataset
     
 

@@ -27,8 +27,7 @@ def testBERT():
 
 
 def testFeatureNet():
-    embeddingNet = EmbeddingNet(TEXT_INPUT)
-    embeddings = embeddingNet(TEXT_INPUT)
+    embeddings = BERT_MODEL(TEXT_INPUT)
     featureNet = CBHG(BATCH_SIZE, 16, True, 256)
     genFeatures, discFeatures = featureNet(embeddings)
     assert genFeatures.shape == (1, 400, 256)
@@ -37,8 +36,7 @@ def testFeatureNet():
 
 
 def testGeneratorNet():
-    embeddingNet = EmbeddingNet(TEXT_INPUT)
-    embeddings = embeddingNet(TEXT_INPUT)
+    embeddings = BERT_MODEL(TEXT_INPUT)
     featureNet = CBHG(BATCH_SIZE, 16, True, 256)
     genFeatures, _ = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
@@ -48,8 +46,7 @@ def testGeneratorNet():
 
 
 def testDiscriminatorNet():
-    embeddingNet = EmbeddingNet(TEXT_INPUT)
-    embeddings = embeddingNet(TEXT_INPUT)
+    embeddings = BERT_MODEL(TEXT_INPUT)
     featureNet = CBHG(BATCH_SIZE, 16, True, 256)
     genFeatures, discFeatures = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
