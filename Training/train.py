@@ -98,10 +98,12 @@ def train(dataset, epochs):
         for batch in dataset:
             trainStep(batch[0], batch[1], featureNet, generator, discriminator, genOptimizer, discOptimizer, featureOptimizer)
             checkpointPath = os.path.join(CKPT_DIR, "ckpt"+epoch)
-            checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
-                                 discriminator_optimizer=discriminator_optimizer,
+            checkpoint = tf.train.Checkpoint(genOptimizer=genOptimizer,
+                                 discOptimizer=discOptimizer,
+                                 featureOptimizer=featureOptimizer,
                                  generator=generator,
-                                 discriminator=discriminator)
+                                 discriminator=discriminator,
+                                 featureNet=featureNet)
             checkpoint.save(file_prefix = checkpointPath)
 
 
