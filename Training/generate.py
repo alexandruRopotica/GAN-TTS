@@ -10,10 +10,15 @@ from Models.FeatureNet.cbhg import CBHG
 from Models.GeneratorNet.generator import Generator
 from Models.DiscriminatorNet.discriminator import Discriminator
 import numpy as np
+import soundfile as sf
+from Training.train import getDataset
 
 
-DATASET_DIR = './LJspeechTest'
-CKPT = './Checkpoints/'
+TEXT_DIR = './LJspeechTest/texts'
+WAVS_DIR = './LJspeechTest/wavs'
+GENERATED_WAVS_DIR = './LJspeechTest/generatedWavs'
+BATCH_SIZE = 10
+CKPT_DIR = './Checkpoints/'
 
 
 def FrechetInceptionDistance(realAudio, generatedAudio):
@@ -28,15 +33,23 @@ def FrechetInceptionDistance(realAudio, generatedAudio):
     return fid
 
 
-def saveGeneratedAudio():
-    checkpoint = tf.train.Checkpoint(genOptimizer=genOptimizer,
-                                 discOptimizer=discOptimizer,
-                                 generator=generator,
-                                 discriminator=discriminator,
-                                 featureNet=featureNet)
-    models = checkpoint.restore(os.path.join(CKPT, 'ckpt-1.data-00000-of-00001'))
-    print(models.generator.summary())
+def saveGeneratedAudio(textDataset, checkpointDir):
+    featureNet = CBHG(BATCH_SIZE, 16, True, 768)
+    initFNetTensor = tf.random.normal((BATCH_SIZE, 768, 1))
+    initFNet = featureNet(initFNetTensor)
+    featureNet.load_weights(os.path.join(CKPT_DIR, "fnet.keras"))
+    embeddings = featureNet(textDataset)
+    generator = Generator(BATCH_SIZE, True)
+    initGenTensor = tf.random.normal((BATCH_SIZE, 400, 768))
+    noise = tf.random.normal((BATCH_SIZE, 128, 1))
+    initGen = generator(initGenTensor, noise)
+    generator.load_weights(os.path.join(CKPT_DIR, "gen.keras"))
+    generatedAudio = generator(embeddings)
+    for i in range(len(generatedAudio)):
+        generatedAudio[i] = tf.reshape(generatedAudio[i], (48000))
+        sf.write(os.path.join(GENERATED_WAVS_DIR, "generatedWav"+str(i)), generatedAudio[i], 24000)
 
 
 if __name__=='__main__':
-    saveGeneratedAudio()
+    audioDataset, textDataset = getDataset(WAVS_DIR, TEXT_DIR)
+    saveGeneratedAudio(textDataset)
