@@ -9,3 +9,5 @@
 /Training/__pycache__/
 /Utils/__pycache__/
 /Checkpoints
+/LJSpeech
+/LJSpeechTest
