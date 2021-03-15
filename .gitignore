@@ -1,3 +1,11 @@
+
 /LJSpeech-1.1
 /.vscode
 /Images
+/Models/DiscriminatorNet/__pycache__/
+/Models/FeatureNet/__pycache__/
+/Models/GeneratorNet/__pycache__/
+/Models/__pycache__/
+/Training/__pycache__/
+/Utils/__pycache__/
+/Checkpoints
