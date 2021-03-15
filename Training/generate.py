@@ -14,9 +14,9 @@ import soundfile as sf
 from Training.train import getDataset
 
 
-TEXT_DIR = './LJspeechTest/texts'
-WAVS_DIR = './LJspeechTest/wavs'
-GENERATED_WAVS_DIR = './LJspeechTest/generatedWavs'
+TEXT_DIR = './LJSpeechTest/texts'
+WAVS_DIR = './LJSpeechTest/wavs'
+GENERATED_WAVS_DIR = './LJSpeechTest/generatedWavs'
 BATCH_SIZE = 10
 CKPT_DIR = './Checkpoints/'
 
@@ -46,10 +46,28 @@ def saveGeneratedAudio(textDataset, checkpointDir):
     generator.load_weights(os.path.join(CKPT_DIR, "gen.keras"))
     generatedAudio = generator(embeddings)
     for i in range(len(generatedAudio)):
-        generatedAudio[i] = tf.reshape(generatedAudio[i], (48000))
-        sf.write(os.path.join(GENERATED_WAVS_DIR, "generatedWav"+str(i)), generatedAudio[i], 24000)
+        audio = tf.reshape(generatedAudio[i], (48000))
+        sf.write(os.path.join(GENERATED_WAVS_DIR, "generatedWav"+str(i)), audio, 24000)
+
+def getAllSamples(wavsDir, generatedWavsDir):
+    realAudio, generatedAudio = [], []
+    for wav, generatedWav in zip(os.listdir(wavsDir), os.listdir(generatedWavsDir)):
+        audio, _ = librosa.load(wavsDir + '/' + wav, sr=24000)
+        duration = librosa.get_duration(audio, sr=24000)
+        offset = np.random.randint(0, duration - 2)
+        audio, _ = librosa.load(wavsDir + '/' + wav, sr=24000, offset=int(offset), duration=2)
+        quantizedAudio = librosa.mu_compress(audio)
+        quantizedAudio = tf.reshape(quantizedAudio[0:-1], (BATCH_SIZE, 128, 125, 3))
+        realAudio.append(quantizedAudio)
+        fakeAudio, _ = librosa.load(generatedWavsDir + '/' + generatedWav, sr=24000)
+        fakeAudio = tf.reshape(fakeAudio, (BATCH_SIZE, 128, 125, 3))
+        generatedAudio.append(realAudio)
+    return realAudio, generatedAudio
+
 
 
 if __name__=='__main__':
     audioDataset, textDataset = getDataset(WAVS_DIR, TEXT_DIR)
     saveGeneratedAudio(textDataset)
+    realAudio, generatedAudio = getAllSamples(WAVS_DIR, GENERATED_WAVS_DIR)
+    print(FrechetInceptionDistance(realAudio, generatedAudio))
