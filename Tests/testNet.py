@@ -28,16 +28,16 @@ def testBERT():
 
 def testFeatureNet():
     embeddings = BERT_MODEL(TEXT_INPUT)
-    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 768)
     genFeatures, discFeatures = featureNet(embeddings)
-    assert genFeatures.shape == (1, 400, 256)
-    assert discFeatures.shape == (1, 1, 256)
+    assert genFeatures.shape == (1, 400, 768)
+    assert discFeatures.shape == (1, 1, 768)
     print("FeatureNet test completed.")
 
 
 def testGeneratorNet():
     embeddings = BERT_MODEL(TEXT_INPUT)
-    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 768)
     genFeatures, _ = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
     generatedAudio = generator(genFeatures, NOISE)
@@ -47,7 +47,7 @@ def testGeneratorNet():
 
 def testDiscriminatorNet():
     embeddings = BERT_MODEL(TEXT_INPUT)
-    featureNet = CBHG(BATCH_SIZE, 16, True, 256)
+    featureNet = CBHG(BATCH_SIZE, 16, True, 768)
     genFeatures, discFeatures = featureNet(embeddings)
     generator = Generator(BATCH_SIZE, True)
     discriminator = Discriminator()

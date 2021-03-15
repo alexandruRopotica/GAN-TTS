@@ -87,8 +87,8 @@ def trainStep(audioBatch, textBatch, featureNet, generator, discriminator, genOp
     genOptimizer.apply_gradients(zip(genGradients, generator.trainable_variables))
     featureGradients = featureTape.gradient(discLoss, featureNet.trainable_variables)
     discOptimizer.apply_gradients(zip(featureGradients, featureNet.trainable_variables))
-    #print("Generator loss:", genLoss.numpy(),"| Discriminator loss:", discLoss.numpy())
-
+    generator.save_weights(os.path.join(CKPT_DIR,"gen.keras"))
+    featureNet.save_weights(os.path.join(CKPT_DIR,"fnet.keras"))
 
 def train(dataset, epochs):
     featureNet, generator, discriminator, genOptimizer, discOptimizer = initializeModels()
@@ -96,14 +96,6 @@ def train(dataset, epochs):
         print("Epoch", epoch+1)
         for batch in dataset:
             trainStep(batch[0], batch[1], featureNet, generator, discriminator, genOptimizer, discOptimizer)
-            checkpointPath = os.path.join(CKPT_DIR, "ckpt")
-            checkpoint = tf.train.Checkpoint(generator_optimizer=genOptimizer,
-                                 discriminator_optimizer=discOptimizer,
-                                 feature_net=featureNet,
-                                 generator=generator,
-                                 discriminator=discriminator,
-                                 featureNet=featureNet)
-            checkpoint.save(file_prefix = checkpointPath)
 
 
 
